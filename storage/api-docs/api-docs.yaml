@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: Test CRUD API
+  description: Test CRUD API
+  version: 1.0.0
+servers:
+  - url: 'http://127.0.0.1:8000/api/'
+paths:
+  '/tasks':
+    get:
+      summary: 'Get list of tasks'
+      tags: ['Task']
+      responses:
+        '200':
+          description: 'Get list of tasks'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Получены все задачи'
+                  count:
+                    type: integer
+                    example: 1
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+    post:
+      summary: 'Create new task'
+      tags: ['Task']
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreTask'
+      responses:
+        '201':
+          description: 'Task created successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Задача успешно создана'
+                  data:
+                    $ref: '#/components/schemas/Task'
+  '/tasks/{id}':
+    get:
+      summary: 'Get 1 task'
+      tags: ['Task']
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Get task by id'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Получена задача с id - 1'
+                  data:
+                    $ref: '#/components/schemas/Task'
+    put:
+      summary: 'Update task'
+      tags: ['Task']
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTask'
+      responses:
+        '200':
+          description: 'Update task by id'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Задача успешно обновлена'
+                  data:
+                    $ref: '#/components/schemas/Task'
+    delete:
+      summary: 'Delete task'
+      tags: [ 'Task' ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Delete task by id'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Задача успешно удалена'
+components:
+  schemas:
+    Task:
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: 'Title'
+        description:
+          type: string
+          example: 'Description of task'
+        status:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          example: '2025-12-30T12:34:56Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2025-12-30T12:34:56Z'
+    StoreTask:
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          example: 'Some title'
+        description:
+          type: string
+          example: 'This is new task'
+    UpdateTask:
+      properties:
+        title:
+          type: string
+          example: 'Some new title'
+        description:
+          type: string
+          example: 'This is updated description for task'
+        status:
+          type: boolean
+          example: true

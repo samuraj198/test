@@ -2,48 +2,68 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
-use Illuminate\Http\Request;
+use App\Services\TaskService;
+use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(private TaskService $taskService)
+    {}
+
+    public function index(): JsonResponse
     {
-        //
+        $tasks = $this->taskService->getAll();
+
+        return response()->json([
+            'message' => count($tasks) > 0 ? 'Получены все задачи' : 'Нет задач',
+            'count' => count($tasks),
+            'items' => $tasks
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request): JsonResponse
     {
-        //
+        $task = $this->taskService->store($request->validated());
+
+        return response()->json([
+            'message' => 'Задача успешно создана',
+            'data' => $task
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
+    public function show(Task $task): JsonResponse
     {
-        //
+        return response()->json([
+            'message' => "Получена задача с id - $task->id",
+            'data' => $task
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Task $task)
+    public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
-        //
+        $updatedTask = $this->taskService->update($request->validated(), $task);
+
+        return response()->json([
+            'message' => 'Задача успешно обновлена',
+            'data' => $updatedTask
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Task $task)
+    public function destroy(Task $task): JsonResponse
     {
-        //
+        $check = $this->taskService->destroy($task);
+
+        if ($check) {
+            return response()->json([
+                'message' => 'Задача успешно удалена'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Не удалось удалить задачу'
+        ], 404);
     }
 }
