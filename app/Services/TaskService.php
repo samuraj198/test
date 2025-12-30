@@ -16,7 +16,9 @@ class TaskService
     // Создание задач
     public function store(array $data): Task
     {
-        $data['status'] = false;
+        if (!isset($data['status'])) {
+            $data['status'] = false;
+        }
 
         $task = Task::create($data);
 
