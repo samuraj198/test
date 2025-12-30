@@ -10,20 +10,23 @@ use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
+    // DI для TaskService
     public function __construct(private TaskService $taskService)
     {}
 
+    // Получение всех задач
     public function index(): JsonResponse
     {
         $tasks = $this->taskService->getAll();
 
         return response()->json([
             'message' => count($tasks) > 0 ? 'Получены все задачи' : 'Нет задач',
-            'count' => count($tasks),
+            'count' => count($tasks), // Счетчик всех задач
             'items' => $tasks
         ]);
     }
 
+    // Создание 1 задачи
     public function store(StoreTaskRequest $request): JsonResponse
     {
         $task = $this->taskService->store($request->validated());
@@ -34,6 +37,7 @@ class TaskController extends Controller
         ], 201);
     }
 
+    // Получение 1 задачи
     public function show(Task $task): JsonResponse
     {
         return response()->json([
@@ -42,6 +46,7 @@ class TaskController extends Controller
         ]);
     }
 
+    // Обновление задачи
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
         $updatedTask = $this->taskService->update($request->validated(), $task);
@@ -52,10 +57,12 @@ class TaskController extends Controller
         ]);
     }
 
+    // Удаление задачи
     public function destroy(Task $task): JsonResponse
     {
         $check = $this->taskService->destroy($task);
 
+        // Проверка на удаление (true or false)
         if ($check) {
             return response()->json([
                 'message' => 'Задача успешно удалена'

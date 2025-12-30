@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TaskService
 {
+    // Все задачи
     public function getAll(): Collection
     {
         return Task::all();
     }
 
+    // Создание задач
     public function store(array $data): Task
     {
         $data['status'] = false;
@@ -21,6 +23,7 @@ class TaskService
         return $task;
     }
 
+    // Обновление задачи
     public function update(array $data, Task $task): Task
     {
         $task->update($data);
@@ -28,6 +31,7 @@ class TaskService
         return $task;
     }
 
+    // Удаление задачи
     public function destroy(Task $task): bool
     {
         return $task->delete();
