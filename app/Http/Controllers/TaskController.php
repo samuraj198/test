@@ -6,7 +6,10 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Services\TaskService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
+use function Symfony\Component\String\s;
 
 class TaskController extends Controller
 {
@@ -17,60 +20,104 @@ class TaskController extends Controller
     // Получение всех задач
     public function index(): JsonResponse
     {
-        $tasks = $this->taskService->getAll();
+        try {
+            $tasks = $this->taskService->getAll();
 
-        return response()->json([
-            'message' => count($tasks) > 0 ? 'Получены все задачи' : 'Нет задач',
-            'count' => count($tasks), // Счетчик всех задач
-            'items' => $tasks
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => count($tasks) > 0 ? 'Получены все задачи' : 'Нет задач',
+                'count' => count($tasks), // Счетчик всех задач
+                'items' => $tasks
+            ], 200);
+        } catch (QueryException $e) {
+            // Вывод ошибки от БД
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка в базе данных'
+            ], 500);
+        }
     }
 
     // Создание 1 задачи
     public function store(StoreTaskRequest $request): JsonResponse
     {
-        $task = $this->taskService->store($request->validated());
+        try {
+            $task = $this->taskService->store($request->validated());
 
-        return response()->json([
-            'message' => 'Задача успешно создана',
-            'data' => $task
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Задача успешно создана',
+                'data' => $task
+            ], 201);
+        } catch (QueryException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка в базе данных'
+            ], 500);
+        }
+
     }
 
     // Получение 1 задачи
-    public function show(Task $task): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        return response()->json([
-            'message' => "Получена задача с id - $task->id",
-            'data' => $task
-        ]);
+        try {
+            $task = $this->taskService->getById($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Получена задача с id - $task->id",
+                'data' => $task
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Задача не найдена'
+            ], 404);
+        }
     }
 
     // Обновление задачи
-    public function update(UpdateTaskRequest $request, Task $task): JsonResponse
+    public function update(UpdateTaskRequest $request, int $id): JsonResponse
     {
-        $updatedTask = $this->taskService->update($request->validated(), $task);
+        try {
+            $updatedTask = $this->taskService->update($request->validated(), $id);
 
-        return response()->json([
-            'message' => 'Задача успешно обновлена',
-            'data' => $updatedTask
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Задача успешно обновлена',
+                'data' => $updatedTask
+            ]);
+        } catch (QueryException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка в базе данных'
+            ], 500);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Задача не найдена'
+            ], 404);
+        }
+
     }
 
     // Удаление задачи
-    public function destroy(Task $task): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-        $check = $this->taskService->destroy($task);
+        try {
+            $this->taskService->destroy($id);
 
-        // Проверка на удаление (true or false)
-        if ($check) {
             return response()->json([
+                'success' => true,
                 'message' => 'Задача успешно удалена'
             ]);
-        }
 
-        return response()->json([
-            'message' => 'Не удалось удалить задачу'
-        ], 404);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Не удалось удалить задачу'
+            ], 404);
+        }
     }
 }

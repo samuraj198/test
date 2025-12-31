@@ -13,6 +13,11 @@ class TaskService
         return Task::all();
     }
 
+    public function getById(int $id): Task
+    {
+        return Task::findOrFail($id);
+    }
+
     // Создание задач
     public function store(array $data): Task
     {
@@ -26,16 +31,19 @@ class TaskService
     }
 
     // Обновление задачи
-    public function update(array $data, Task $task): Task
+    public function update(array $data, int $id): Task
     {
+        $task = Task::findOrFail($id);
         $task->update($data);
 
         return $task;
     }
 
     // Удаление задачи
-    public function destroy(Task $task): bool
+    public function destroy(int $id): bool
     {
+        $task = Task::findOrFail($id);
+
         return $task->delete();
     }
 }
