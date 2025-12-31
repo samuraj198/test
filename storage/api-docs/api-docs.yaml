@@ -18,6 +18,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   message:
                     type: string
                     example: 'Получены все задачи'
@@ -28,6 +31,19 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Task'
+        '500':
+          description: 'DB error'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Ошибка в базе данных'
     post:
       summary: 'Create new task'
       tags: ['Task']
@@ -45,11 +61,27 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   message:
                     type: string
                     example: 'Задача успешно создана'
                   data:
                     $ref: '#/components/schemas/Task'
+        '500':
+          description: 'DB error'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Ошибка в базе данных'
   '/tasks/{id}':
     get:
       summary: 'Get 1 task'
@@ -68,11 +100,27 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   message:
                     type: string
                     example: 'Получена задача с id - 1'
                   data:
                     $ref: '#/components/schemas/Task'
+        '404':
+          description: 'Task not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Задача не найдена'
     put:
       summary: 'Update task'
       tags: ['Task']
@@ -101,6 +149,32 @@ paths:
                     example: 'Задача успешно обновлена'
                   data:
                     $ref: '#/components/schemas/Task'
+        '404':
+          description: 'Task not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Задача не найдена'
+        '500':
+          description: 'DB error'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Ошибка в базе данных'
     delete:
       summary: 'Delete task'
       tags: [ 'Task' ]
@@ -118,9 +192,25 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   message:
                     type: string
                     example: 'Задача успешно удалена'
+        '404':
+          description: 'Task not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Задача не найдена'
 components:
   schemas:
     Task:
